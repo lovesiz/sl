@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel - Link Kısaltıcı</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    input { margin: 5px; padding: 5px; }
+    button { padding: 6px 10px; }
+    pre { background: #f4f4f4; padding: 10px; border: 1px solid #ddd; }
+  </style>
+</head>
+<body>
+  <h2>Admin Panel - Link Kısaltıcı</h2>
+  <p>Yeni kısa link ekleyin:</p>
+  <input type="text" id="short" placeholder="Kısa kod (örn: yt)">
+  <input type="text" id="long" placeholder="Uzun link (örn: https://youtube.com)">
+  <button onclick="addLink()">Ekle</button>
+
+  <h3>Mevcut Linkler</h3>
+  <ul id="linkList"></ul>
+
+  <h3>Güncel JSON Çıktısı</h3>
+  <pre id="jsonOutput"></pre>
+
+  <script>
+    let links = {};
+
+    // urls.json'u yükle
+    async function loadLinks() {
+      try {
+        const res = await fetch("urls.json");
+        links = await res.json();
+        renderLinks();
+      } catch (e) {
+        console.error("urls.json yüklenemedi:", e);
+      }
+    }
+
+    // Listeyi ekrana bas
+    function renderLinks() {
+      const list = document.getElementById("linkList");
+      list.innerHTML = "";
+      for (let key in links) {
+        let li = document.createElement("li");
+        li.textContent = key + " → " + links[key];
+        list.appendChild(li);
+      }
+      document.getElementById("jsonOutput").textContent = JSON.stringify(links, null, 2);
+    }
+
+    // Yeni link ekle
+    function addLink() {
+      const short = document.getElementById("short").value.trim();
+      const long = document.getElementById("long").value.trim();
+
+      if (!short || !long) {
+        alert("Lütfen hem kısa kod hem uzun link girin!");
+        return;
+      }
+
+      links[short] = long;
+      renderLinks();
+      document.getElementById("short").value = "";
+      document.getElementById("long").value = "";
+    }
+
+    loadLinks();
+  </script>
+</body>
+</html>
