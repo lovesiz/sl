@@ -20,7 +20,66 @@
   <h3>Mevcut Linkler</h3>
   <ul id="linkList"></ul>
 
-  <h3>Güncel JSON Çıktısı</h3>
+  <h3>Güncel JSON Çıktısı</h3>```html
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Link Kısaltıcı</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 40px; }
+    code { background: #f4f4f4; padding: 5px 10px; border-radius: 5px; }
+    .error { color: red; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h2>Link Kısaltıcı</h2>
+  <p>Kısa linkinizi şu şekilde kullanın:</p>
+  <code>https://lovesiz.github.io/sl/?go=kisa</code>
+
+  <div id="status"></div>
+
+  <script>
+    async function redirect() {
+      const status = document.getElementById("status");
+      const params = new URLSearchParams(window.location.search);
+      const shortCode = params.get("go");
+
+      // Eğer ?go parametresi yoksa kullanıcıya bilgi göster
+      if (!shortCode) {
+        status.innerHTML = "<p>Yönlendirme yapmak için URL'ye '?go=kisa' ekleyin.</p>";
+        return;
+      }
+
+      try {
+        // urls.json dosyasını aynı klasörden çek
+        const res = await fetch("./urls.json", { cache: "no-store" });
+
+        if (!res.ok) {
+          throw new Error("urls.json dosyası yüklenemedi!");
+        }
+
+        const data = await res.json();
+
+        if (data[shortCode]) {
+          status.innerHTML = `<p>${shortCode} yönlendirmesi bulundu. Gidiliyor...</p>`;
+          window.location.href = data[shortCode];
+        } else {
+          status.innerHTML = `<p class='error'>Hata: '${shortCode}' adlı kısa link bulunamadı.</p>`;
+        }
+      } catch (err) {
+        status.innerHTML = `<p class='error'>Bir hata oluştu: ${err.message}</p>`;
+        console.error(err);
+      }
+    }
+
+    redirect();
+  </script>
+</body>
+</html>
+```
+
   <pre id="jsonOutput"></pre>
 
   <script>
@@ -69,3 +128,4 @@
   </script>
 </body>
 </html>
+
