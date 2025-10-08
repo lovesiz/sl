@@ -6,7 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body { font-family: Arial, sans-serif; text-align: center; padding: 40px; background: #fafafa; }
-	  .sol{max-width:250px; left:30px;}
+	.container { display: flex; /* Div'leri yan yana dizer */ justify-content: center; /* Ortalar */ gap: 80px; /* Aralarındaki boşluk */ margin-top: 50px; }
+	.sol{max-width:250px;}
     .ad-box { border: 2px dashed #888; padding: 20px; margin: 30px auto; max-width: 400px; background: white; }
     .countdown { font-size: 24px; color: #007bff; margin-top: 10px; }
     .error { color: red; margin-top: 20px; }
@@ -15,7 +16,7 @@
 </head>
 <body>
   <h2>Reklam Sayfası</h2>
-
+<div class="container">
   <div class="sol">
 						<!--Start rollercoin.com code-->
 						<a href="https://rollercoin.com/?r=k1y2y92y">
@@ -32,7 +33,14 @@
     <div class="countdown">12 saniye kaldı...</div>
     <button id="goBtn">Siteye Git</button>
   </div>
-
+ <div class="sol">
+						<!--Start rollercoin.com code-->
+						<a href="https://rollercoin.com/?r=k1y2y92y">
+							<img src="https://static.rollercoin.com/static/img/ref/gen2/w160h600.gif" alt="160h600"/>
+						</a>
+						<!--End rollercoin.com code-->
+  </div>
+</div>
   <script>
     async function redirectWithAd() {
       const status = document.getElementById("status");
@@ -91,7 +99,6 @@
   </script>
 </body>
 </html>
-
 
 
 
