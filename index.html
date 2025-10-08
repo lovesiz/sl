@@ -1,131 +1,87 @@
+```html
 <!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>Admin Panel - Link Kısaltıcı</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    input { margin: 5px; padding: 5px; }
-    button { padding: 6px 10px; }
-    pre { background: #f4f4f4; padding: 10px; border: 1px solid #ddd; }
-  </style>
-</head>
-<body>
-  <h2>Admin Panel - Link Kısaltıcı</h2>
-  <p>Yeni kısa link ekleyin:</p>
-  <input type="text" id="short" placeholder="Kısa kod (örn: yt)">
-  <input type="text" id="long" placeholder="Uzun link (örn: https://youtube.com)">
-  <button onclick="addLink()">Ekle</button>
-
-  <h3>Mevcut Linkler</h3>
-  <ul id="linkList"></ul>
-
-  <h3>Güncel JSON Çıktısı</h3>```html
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <title>Link Kısaltıcı</title>
+  <title>Yönlendirme Sayfası - Link Kısaltıcı</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; padding: 40px; }
-    code { background: #f4f4f4; padding: 5px 10px; border-radius: 5px; }
+    body { font-family: Arial, sans-serif; text-align: center; padding: 40px; background: #fafafa; }
+    .ad-box { border: 2px dashed #888; padding: 20px; margin: 30px auto; max-width: 400px; background: white; }
+    .countdown { font-size: 24px; color: #007bff; margin-top: 10px; }
     .error { color: red; margin-top: 20px; }
+    button { padding: 8px 16px; margin-top: 15px; font-size: 16px; display: none; }
   </style>
 </head>
 <body>
-  <h2>Link Kısaltıcı</h2>
-  <p>Kısa linkinizi şu şekilde kullanın:</p>
-  <code>https://lovesiz.github.io/sl/?go=kisa</code>
+  <h2>Reklam Sayfası</h2>
+  <div id="status">Yönlendirme hazırlanıyor...</div>
 
-  <div id="status"></div>
+  <div id="adSection" class="ad-box" style="display:none;">
+    <h3>Reklam Alanı</h3>
+    <p>Buraya istediğin reklam kodunu (örneğin banner, görsel, iframe) ekleyebilirsin.</p>
+    <!-- Örnek olarak basit bir reklam görseli -->
+    <img src="https://via.placeholder.com/300x250?text=Reklam+Alan%C4%B1" alt="Reklam" />
+    <div class="countdown">12 saniye kaldı...</div>
+    <button id="goBtn">Siteye Git</button>
+  </div>
 
   <script>
-    async function redirect() {
+    async function redirectWithAd() {
       const status = document.getElementById("status");
+      const adSection = document.getElementById("adSection");
+      const countdownText = adSection.querySelector(".countdown");
+      const goBtn = document.getElementById("goBtn");
+
       const params = new URLSearchParams(window.location.search);
       const shortCode = params.get("go");
 
-      // Eğer ?go parametresi yoksa kullanıcıya bilgi göster
       if (!shortCode) {
         status.innerHTML = "<p>Yönlendirme yapmak için URL'ye '?go=kisa' ekleyin.</p>";
         return;
       }
 
       try {
-        // urls.json dosyasını aynı klasörden çek
         const res = await fetch("./urls.json", { cache: "no-store" });
-
-        if (!res.ok) {
-          throw new Error("urls.json dosyası yüklenemedi!");
-        }
-
+        if (!res.ok) throw new Error("urls.json dosyası yüklenemedi!");
         const data = await res.json();
 
-        if (data[shortCode]) {
-          status.innerHTML = `<p>${shortCode} yönlendirmesi bulundu. Gidiliyor...</p>`;
-          window.location.href = data[shortCode];
-        } else {
+        if (!data[shortCode]) {
           status.innerHTML = `<p class='error'>Hata: '${shortCode}' adlı kısa link bulunamadı.</p>`;
+          return;
         }
+
+        const targetUrl = data[shortCode];
+
+        // Reklamı göster
+        status.style.display = "none";
+        adSection.style.display = "block";
+
+        let timeLeft = 12;
+        countdownText.textContent = `${timeLeft} saniye kaldı...`;
+
+        const interval = setInterval(() => {
+          timeLeft--;
+          countdownText.textContent = `${timeLeft} saniye kaldı...`;
+          if (timeLeft <= 0) {
+            clearInterval(interval);
+            countdownText.textContent = "Hazır!";
+            goBtn.style.display = "inline-block";
+          }
+        }, 1000);
+
+        goBtn.addEventListener("click", () => {
+          window.location.href = targetUrl;
+        });
+
       } catch (err) {
         status.innerHTML = `<p class='error'>Bir hata oluştu: ${err.message}</p>`;
         console.error(err);
       }
     }
 
-    redirect();
+    redirectWithAd();
   </script>
 </body>
 </html>
 ```
-
-  <pre id="jsonOutput"></pre>
-
-  <script>
-    let links = {};
-
-    // urls.json'u yükle
-    async function loadLinks() {
-      try {
-        const res = await fetch("urls.json");
-        links = await res.json();
-        renderLinks();
-      } catch (e) {
-        console.error("urls.json yüklenemedi:", e);
-      }
-    }
-
-    // Listeyi ekrana bas
-    function renderLinks() {
-      const list = document.getElementById("linkList");
-      list.innerHTML = "";
-      for (let key in links) {
-        let li = document.createElement("li");
-        li.textContent = key + " → " + links[key];
-        list.appendChild(li);
-      }
-      document.getElementById("jsonOutput").textContent = JSON.stringify(links, null, 2);
-    }
-
-    // Yeni link ekle
-    function addLink() {
-      const short = document.getElementById("short").value.trim();
-      const long = document.getElementById("long").value.trim();
-
-      if (!short || !long) {
-        alert("Lütfen hem kısa kod hem uzun link girin!");
-        return;
-      }
-
-      links[short] = long;
-      renderLinks();
-      document.getElementById("short").value = "";
-      document.getElementById("long").value = "";
-    }
-
-    loadLinks();
-  </script>
-</body>
-</html>
-
